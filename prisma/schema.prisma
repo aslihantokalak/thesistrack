@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  firstName String
+  lastName  String
+  role      String   @default("STUDENT")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tasks     Task[]
+  messages  Message[]
+}
+model Thesis {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  status      String   @default("IN_PROGRESS")
+  studentId   String
+  advisorId   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tasks       Task[]
+  milestones  Milestone[]
+  meetings    Meeting[]
+  messages    Message[]
+}
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  status      String   @default("BACKLOG")
+  priority    String   @default("MEDIUM")
+  orderNum    Int      @default(0)
+  dueDate     DateTime?
+  thesisId    String
+  thesis      Thesis   @relation(fields: [thesisId], references: [id])
+  assigneeId  String?
+  assignee    User?    @relation(fields: [assigneeId], references: [clerkId])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+model Milestone {
+  id          String   @id @default(cuid())
+  name        String
+  status      String   @default("UPCOMING")
+  orderNum    Int
+  dueDate     DateTime?
+  thesisId    String
+  thesis      Thesis   @relation(fields: [thesisId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+model Meeting {
+  id        String   @id @default(cuid())
+  topic     String
+  date      DateTime
+  duration  Int      @default(60)
+  type      String   @default("VIDEO")
+  status    String   @default("SCHEDULED")
+  notes     String?
+  thesisId  String
+  thesis    Thesis   @relation(fields: [thesisId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  read      Boolean  @default(false)
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [clerkId])
+  thesisId  String
+  thesis    Thesis   @relation(fields: [thesisId], references: [id])
+  createdAt DateTime @default(now())
+}
