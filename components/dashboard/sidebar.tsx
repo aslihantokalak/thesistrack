@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { UserButton } from "@clerk/nextjs";
 
 const navItems = [
   { label: "Dashboard", href: "/", icon: "◫" },
@@ -12,6 +13,10 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+
+  if (pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up")) {
+    return null;
+  }
 
   return (
     <aside className="w-[68px] h-screen bg-[#111827] border-r border-[#1E293B] flex flex-col items-center py-4 gap-1 fixed left-0 top-0">
@@ -44,9 +49,14 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white text-xs font-bold">
-        E
-      </div>
+      <UserButton
+        afterSignOutUrl="/sign-in"
+        appearance={{
+          elements: {
+            avatarBox: "w-8 h-8",
+          },
+        }}
+      />
     </aside>
   );
 }
